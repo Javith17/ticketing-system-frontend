@@ -1,9 +1,15 @@
 ## Build stage
-FROM node:20-alpine AS build
+FROM node:22-alpine AS build
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY . .
+# Vite bakes VITE_* values into the bundle at build time, and .env files are
+# excluded by .dockerignore, so they come in as build args.
+ARG VITE_API_BASE_URL=/api
+ARG VITE_APP_NAME="Ticketing System"
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL \
+    VITE_APP_NAME=$VITE_APP_NAME
 RUN npm run build
 
 ## Serve stage

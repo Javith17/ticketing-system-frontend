@@ -1,0 +1,22 @@
+# Production frontend for the Hostinger VPS, driven by Jenkins (see Jenkinsfile).
+# Served on 127.0.0.1:4001; the host nginx proxies / to it and /api/ to the backend.
+#   docker compose -p ticketing-frontend -f docker-compose.prod.yml up -d --build
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api}
+        VITE_APP_NAME: ${VITE_APP_NAME:-Ticketing System}
+    image: ticketing-frontend:latest
+    container_name: ticketing-frontend
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:4001:4001'
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'
